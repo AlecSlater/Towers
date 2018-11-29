@@ -50,4 +50,6 @@ public class GestureHandler implements GestureDetector.GestureListener {
     public void pinchStop() {
 
     }
+
+
 }

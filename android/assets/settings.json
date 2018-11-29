@@ -1,5 +1,6 @@
 {
 	"fontScale": "2",
 	"debug": "true",
-	"gravity": "-10"
+	"gravity": "1",
+	"baseHP": "2"
 }

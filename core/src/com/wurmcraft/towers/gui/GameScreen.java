@@ -38,6 +38,7 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
+        GameManager.initGameSetttings();
     }
 
     @Override
@@ -51,10 +52,15 @@ public class GameScreen implements Screen {
         stage.getBatch().begin();
         stage.getBatch().draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         GameManager.INSTANCE.render(delta, stage, towers, camrea, viewport);
+        drawHUD();
         stage.getBatch().end();
         stage.draw();
         // Get Ready for new Render Step
         GameManager.INSTANCE.run(delta, stage, towers, camrea, viewport);
+    }
+
+    private void drawHUD() {
+        towers.font.draw(stage.getBatch(), "HP: " + GameManager.INSTANCE.baseHP, 10, Towers.HEIGHT - 32);
     }
 
     @Override

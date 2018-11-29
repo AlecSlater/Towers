@@ -1,5 +1,6 @@
 package com.wurmcraft.towers.game;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -12,24 +13,30 @@ import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.wurmcraft.towers.Towers;
 import com.wurmcraft.towers.game.api.Enemy;
 import com.wurmcraft.towers.game.api.Entity;
+import com.wurmcraft.towers.gui.MenuScreen;
 
 import org.cliffc.high_scale_lib.NonBlockingHashSet;
 
 public class GameManager {
 
-    private final int STARTING_Y = 14;
+    private final int STARTING_Y = 0;
     private final int SIZE = 64;
+    public static GameManager INSTANCE = new GameManager();
 
-    public World world = new World(new Vector2(0, -1), true);
-    public NonBlockingHashSet<Body> entities = new NonBlockingHashSet<>();
+    public World world = new World(new Vector2(0, -Towers.settings.gravity), true);
     private GestureDetector gesture;
+    private Stage stage;
+    public NonBlockingHashSet<Body> entities = new NonBlockingHashSet<>();
 
-    public static final GameManager INSTANCE = new GameManager();
+    // Game Variables
+    public int baseHP;
 
     public GameManager() {
         placeGround();
@@ -39,6 +46,7 @@ public class GameManager {
 
     // Piggybacked off GameScreen#Render
     public void render(float delta, Stage stage, Towers t, OrthographicCamera camera, Viewport viewport) {
+        this.stage = stage;
         for (Body e : entities)
             if (e.getUserData() instanceof Enemy) {
                 e.setGravityScale(0);
@@ -46,43 +54,69 @@ public class GameManager {
             }
         // TODO Testing Only
         boolean validEnemy = false;
-        for(Body body : entities)
-            if(body.getUserData() instanceof Enemy) {
-            validEnemy = true;
+        for (Body body : entities)
+            if (body.getUserData() instanceof Enemy) {
+                validEnemy = true;
             }
         if (!validEnemy) {
-            createEntity(0, 0, 0, 0);
+            createEntity(0, 0, -SIZE * 2, 0);
         }
-
         for (Body entity : entities) {
-            stage.getBatch().draw(((Entity) entity.getUserData()).texture, entity.getPosition().x, entity.getPosition().y);
+            ((Entity) entity.getUserData()).draw(stage.getBatch(), 0);
         }
     }
 
     // Piggybacked off GameScreen#Render
     public void run(float delta, Stage stage, Towers t, OrthographicCamera camera, Viewport viewport) {
         world.step(20, 4, 1);
-        if (world.getContactCount() > 0)
-            for (Contact contact : world.getContactList()) {
-                if (contact.getFixtureA() != null && contact.getFixtureA().getBody() != null && contact.getFixtureB() != null && contact.getFixtureB().getBody() != null) {
-                    Entity a = (Entity) contact.getFixtureA().getBody().getUserData();
-                    Entity b = (Entity) contact.getFixtureB().getBody().getUserData();
-                    // TODO Redo once weapons exist
-                    if (a != null && b != null) {
-                        if (!(a instanceof Enemy) && !(b instanceof Enemy))
-                            continue;
-                        a.hp--;
-                        b.hp--;
-                        if (a.hp <= 0) {
-                            entities.remove(contact.getFixtureA().getBody());
-                            contact.getFixtureA().getBody().destroyFixture(contact.getFixtureA());
-                        } else if (b.hp <= 0) {
-                            entities.remove(contact.getFixtureB().getBody());
-                            contact.getFixtureB().getBody().destroyFixture(contact.getFixtureB());
+        if (world.getContactCount() > entities.size())
+            checkForCollision();
+        // TODO Move to after HP check,after working on animation system
+        for (Actor actor : stage.getActors())
+            if (actor instanceof Entity) {
+                if (((Entity) actor).body.getPosition().x > Towers.WIDTH || ((Entity) actor).body.getPosition().y < 0) {
+                    if (((Entity) actor).body.getPosition().x > Towers.WIDTH) {
+                        baseHP--;
+                        if (baseHP <= 0) {
+                            gameOver(t);
                         }
+                    }
+                    killEntity((Entity) actor);
+                }
+            }
+    }
+
+    public void gameOver(Towers t) {
+        INSTANCE = new GameManager();
+        t.setScreen(new MenuScreen(t));
+    }
+
+    private void checkForCollision() {
+        for (Contact contact : world.getContactList()) {
+            if (contact.getFixtureA() != null && contact.getFixtureA().getBody() != null && contact.getFixtureB() != null && contact.getFixtureB().getBody() != null) {
+                Entity a = (Entity) contact.getFixtureA().getBody().getUserData();
+                Entity b = (Entity) contact.getFixtureB().getBody().getUserData();
+                // TODO Redo once weapons exist
+                if (a != null && b != null) {
+                    if (!(a instanceof Enemy) && !(b instanceof Enemy))
+                        continue;
+                    a.hp--;
+                    b.hp--;
+                    if (a.hp <= 0) {
+                        killEntity(((Entity) contact.getFixtureA().getBody().getUserData()));
+                    } else if (b.hp <= 0) {
+                        killEntity(((Entity) contact.getFixtureB().getBody().getUserData()));
                     }
                 }
             }
+        }
+    }
+
+    private void killEntity(Entity entity) {
+        entities.remove(entity.body);
+        stage.getActors().removeValue(entity, false);
+        ((Entity) entity.body.getUserData()).addAction(Actions.removeActor());
+        world.destroyBody(entity.body);
     }
 
     private void placeGround() {
@@ -108,6 +142,7 @@ public class GameManager {
             Enemy entity = new Enemy(body, new Texture("enemy.png"), 0);
             body.setUserData(entity);
             entities.add(body);
+            stage.addActor(entity);
             FixtureDef fixtureDef = new FixtureDef();
             fixtureDef.shape = square;
             body.createFixture(fixtureDef);
@@ -122,10 +157,15 @@ public class GameManager {
             Entity entity = new Entity(body, new Texture("basic.png"), 1);
             body.setUserData(entity);
             entities.add(body);
+            stage.addActor(entity);
             FixtureDef fixtureDef = new FixtureDef();
             fixtureDef.shape = square;
             body.createFixture(fixtureDef);
             square.dispose();
         }
+    }
+
+    public static void initGameSetttings() {
+        GameManager.INSTANCE.baseHP = Towers.settings.baseHP;
     }
 }
