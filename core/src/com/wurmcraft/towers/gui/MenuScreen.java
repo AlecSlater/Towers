@@ -27,7 +27,7 @@ public class MenuScreen implements Screen {
 
     private Stage stage;
     private Skin skin;
-    Texture background = new Texture(Gdx.files.internal("backgroundMenu.png"));
+    private Texture background = new Texture(Gdx.files.internal("backgroundMenu.png"));
 
     public MenuScreen(Towers towers) {
         this.towers = towers;
@@ -63,7 +63,7 @@ public class MenuScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-
+        viewport.setScreenSize(width, height);
     }
 
     @Override

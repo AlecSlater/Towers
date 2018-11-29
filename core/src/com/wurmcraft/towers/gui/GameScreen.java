@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.wurmcraft.towers.Towers;
+import com.wurmcraft.towers.game.GameManager;
 
 import static com.wurmcraft.towers.Towers.HEIGHT;
 import static com.wurmcraft.towers.Towers.WIDTH;
@@ -18,9 +19,9 @@ public class GameScreen implements Screen {
     public Towers towers;
     private OrthographicCamera camrea;
     private Viewport viewport;
-
     private Stage stage;
-    Texture background = new Texture(Gdx.files.internal("background.png"));
+
+    private Texture background = new Texture(Gdx.files.internal("background.png"));
 
     public GameScreen(Towers towers) {
         this.towers = towers;
@@ -36,7 +37,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
-
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override
@@ -44,17 +45,21 @@ public class GameScreen implements Screen {
         // Clear the screen
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+        //Run the Game Logic
         stage.act(delta);
+        // Start Drawing the Game
         stage.getBatch().begin();
         stage.getBatch().draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        GameManager.INSTANCE.render(delta, stage, towers, camrea, viewport);
         stage.getBatch().end();
         stage.draw();
+        // Get Ready for new Render Step
+        GameManager.INSTANCE.run(delta, stage, towers, camrea, viewport);
     }
 
     @Override
     public void resize(int width, int height) {
-
+        viewport.setScreenSize(width, height);
     }
 
     @Override
@@ -74,6 +79,6 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        stage.dispose();
     }
 }

@@ -1,4 +1,5 @@
 {
 	"fontScale": "2",
-	"debug": "true"
+	"debug": "true",
+	"gravity": "-10"
 }
