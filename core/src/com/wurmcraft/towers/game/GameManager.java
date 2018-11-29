@@ -37,6 +37,8 @@ public class GameManager {
 
     // Game Variables
     public int baseHP;
+    public int balance;
+    public int killed;
 
     public GameManager() {
         placeGround();
@@ -86,7 +88,7 @@ public class GameManager {
             }
     }
 
-    public void gameOver(Towers t) {
+    private void gameOver(Towers t) {
         INSTANCE = new GameManager();
         t.setScreen(new MenuScreen(t));
     }
@@ -113,6 +115,10 @@ public class GameManager {
     }
 
     private void killEntity(Entity entity) {
+        if (entity instanceof Enemy) {
+            balance += 100;
+            killed++;
+        }
         entities.remove(entity.body);
         stage.getActors().removeValue(entity, false);
         ((Entity) entity.body.getUserData()).addAction(Actions.removeActor());
@@ -139,7 +145,12 @@ public class GameManager {
             Body body = world.createBody(bodyDef);
             PolygonShape square = new PolygonShape();
             square.setAsBox(SIZE, SIZE);
-            Enemy entity = new Enemy(body, new Texture("enemy.png"), 0);
+            Enemy entity;
+            if (killed > 10 && (Math.random() * 10) > 5) {
+                entity = new Enemy(body, new Texture("enemy2.png"), 0, 5);
+            } else {
+                entity = new Enemy(body, new Texture("enemy.png"), 0, 2);
+            }
             body.setUserData(entity);
             entities.add(body);
             stage.addActor(entity);
@@ -148,24 +159,49 @@ public class GameManager {
             body.createFixture(fixtureDef);
             square.dispose();
         } else if (type == 1) {
-            BodyDef bodyDef = new BodyDef();
-            bodyDef.type = BodyDef.BodyType.DynamicBody;
-            bodyDef.position.set(x, y + SIZE);
-            Body body = world.createBody(bodyDef);
-            PolygonShape square = new PolygonShape();
-            square.setAsBox(SIZE, SIZE);
-            Entity entity = new Entity(body, new Texture("basic.png"), 1);
-            body.setUserData(entity);
-            entities.add(body);
-            stage.addActor(entity);
-            FixtureDef fixtureDef = new FixtureDef();
-            fixtureDef.shape = square;
-            body.createFixture(fixtureDef);
-            square.dispose();
+            if (data == 0) {
+                if (balance >= 50) {
+                    BodyDef bodyDef = new BodyDef();
+                    bodyDef.type = BodyDef.BodyType.DynamicBody;
+                    bodyDef.position.set(x, y + SIZE);
+                    Body body = world.createBody(bodyDef);
+                    PolygonShape square = new PolygonShape();
+                    square.setAsBox(SIZE, SIZE);
+                    Entity entity = new Entity(body, new Texture("basic.png"), 1);
+                    body.setUserData(entity);
+                    entities.add(body);
+                    stage.addActor(entity);
+                    FixtureDef fixtureDef = new FixtureDef();
+                    fixtureDef.shape = square;
+                    body.createFixture(fixtureDef);
+                    square.dispose();
+                    balance -= 50;
+                }
+            } else if (data == 1) {
+                if (balance >= 200) {
+                    BodyDef bodyDef = new BodyDef();
+                    bodyDef.type = BodyDef.BodyType.DynamicBody;
+                    bodyDef.position.set(x, y + SIZE);
+                    Body body = world.createBody(bodyDef);
+                    PolygonShape square = new PolygonShape();
+                    square.setAsBox(SIZE, SIZE);
+                    Entity entity = new Entity(body, new Texture("basic2.png"), 8);
+                    body.setUserData(entity);
+                    entities.add(body);
+                    stage.addActor(entity);
+                    FixtureDef fixtureDef = new FixtureDef();
+                    fixtureDef.shape = square;
+                    body.createFixture(fixtureDef);
+                    square.dispose();
+                    balance -= 200;
+                }
+            }
         }
     }
 
     public static void initGameSetttings() {
         GameManager.INSTANCE.baseHP = Towers.settings.baseHP;
+        GameManager.INSTANCE.balance = 500;
+        GameManager.INSTANCE.killed = 0;
     }
 }

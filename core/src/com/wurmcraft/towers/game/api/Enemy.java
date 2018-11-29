@@ -7,8 +7,9 @@ public class Enemy extends Entity {
 
     public int type;
 
-    public Enemy(Body body, Texture texture, int type) {
+    public Enemy(Body body, Texture texture, int type, int hp) {
         super(body, texture);
         this.type = type;
+        this.hp = hp;
     }
 }

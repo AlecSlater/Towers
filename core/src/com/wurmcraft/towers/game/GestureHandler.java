@@ -12,7 +12,11 @@ public class GestureHandler implements GestureDetector.GestureListener {
 
     @Override
     public boolean tap(float x, float y, int count, int button) {
-        GameManager.INSTANCE.createEntity(1, 0, x - 64, y - 64);
+        if(count == 1) {
+            GameManager.INSTANCE.createEntity(1, 0, x - 64, y - 64);
+        } else {
+            GameManager.INSTANCE.createEntity(1, 1, x - 64, y - 64);
+        }
         return true;
     }
 

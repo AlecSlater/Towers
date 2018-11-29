@@ -110,7 +110,7 @@ public class MenuScreen implements Screen {
         table.add(playButton).pad(4).row();
         TextButton settingsButton = new TextButton(local.BUTTON_SETTINGS, skin);
         table.add(settingsButton).pad(4).row();
-        settingsButton.addListener(new ScreenListener(new SettingsScreen()));
+        settingsButton.addListener(new ScreenListener(new SettingsScreen(towers)));
         if (settings.debug)
             table.debug();
         stage.addActor(table);

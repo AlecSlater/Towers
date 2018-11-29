@@ -60,7 +60,9 @@ public class GameScreen implements Screen {
     }
 
     private void drawHUD() {
-        towers.font.draw(stage.getBatch(), "HP: " + GameManager.INSTANCE.baseHP, 10, Towers.HEIGHT - 32);
+        towers.font.draw(stage.getBatch(), "HP: " + GameManager.INSTANCE.baseHP, Towers.WIDTH - Towers.WIDTH / 6, Towers.HEIGHT - 32);
+        towers.font.draw(stage.getBatch(), GameManager.INSTANCE.balance + "c", Towers.WIDTH - 40, Towers.HEIGHT - 32);
+        towers.font.draw(stage.getBatch(), "Score: " + GameManager.INSTANCE.killed, Towers.WIDTH - (2 * (Towers.WIDTH / 6)), Towers.HEIGHT - 32);
     }
 
     @Override
