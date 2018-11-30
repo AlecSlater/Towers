@@ -2,6 +2,7 @@ package com.wurmcraft.towers.game;
 
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 
 public class GestureHandler implements GestureDetector.GestureListener {
 
@@ -12,17 +13,20 @@ public class GestureHandler implements GestureDetector.GestureListener {
 
     @Override
     public boolean tap(float x, float y, int count, int button) {
-        if(count == 1) {
-            GameManager.INSTANCE.createEntity(1, 0, x - 64, y - 64);
-        } else {
-            GameManager.INSTANCE.createEntity(1, 1, x - 64, y - 64);
+        Vector3 loc = GameManager.INSTANCE.camera.unproject(new Vector3(x, y, 0));
+        if (count == 1) {
+            GameManager.INSTANCE.createEntity(1, 0, loc.x + GameManager.SIZE, loc.y );
+            return true;
         }
-        return true;
+        return false;
     }
+
 
     @Override
     public boolean longPress(float x, float y) {
-        return false;
+        Vector3 loc = GameManager.INSTANCE.camera.unproject(new Vector3(x, y, 0));
+        GameManager.INSTANCE.createEntity(1, 1, loc.x + GameManager.SIZE, loc.y - (GameManager.SIZE * 2));
+        return true;
     }
 
     @Override
@@ -54,6 +58,4 @@ public class GestureHandler implements GestureDetector.GestureListener {
     public void pinchStop() {
 
     }
-
-
 }

@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.wurmcraft.towers.Towers;
@@ -60,9 +61,9 @@ public class GameScreen implements Screen {
     }
 
     private void drawHUD() {
-        towers.font.draw(stage.getBatch(), "HP: " + GameManager.INSTANCE.baseHP, Towers.WIDTH - Towers.WIDTH / 6, Towers.HEIGHT - 32);
-        towers.font.draw(stage.getBatch(), GameManager.INSTANCE.balance + "c", Towers.WIDTH - 40, Towers.HEIGHT - 32);
-        towers.font.draw(stage.getBatch(), "Score: " + GameManager.INSTANCE.killed, Towers.WIDTH - (2 * (Towers.WIDTH / 6)), Towers.HEIGHT - 32);
+        towers.font.draw(stage.getBatch(), "HP: " + GameManager.INSTANCE.baseHP, Towers.WIDTH - (Towers.WIDTH / 20), Towers.HEIGHT - Towers.HEIGHT/100);
+        towers.font.draw(stage.getBatch(), GameManager.INSTANCE.balance + "c", Towers.WIDTH - (3 * (Towers.WIDTH / 20)), Towers.HEIGHT - Towers.HEIGHT/100);
+        towers.font.draw(stage.getBatch(), "Score: " + GameManager.INSTANCE.killed, Towers.WIDTH - (5 * (Towers.WIDTH / 20)), Towers.HEIGHT - Towers.HEIGHT/100);
     }
 
     @Override
@@ -89,4 +90,5 @@ public class GameScreen implements Screen {
     public void dispose() {
         stage.dispose();
     }
+
 }

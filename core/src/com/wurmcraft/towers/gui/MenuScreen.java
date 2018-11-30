@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -106,11 +107,25 @@ public class MenuScreen implements Screen {
         Table table = new Table(skin);
         table.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         TextButton playButton = new TextButton(local.BUTTON_PLAY, skin);
-        playButton.addListener(new ScreenListener(new GameScreen(towers)));
+        playButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                stage.addAction(Actions.sequence(Actions.moveBy(0,stage.getHeight(), 1), Actions.run(() -> {
+                    towers.setScreen(new GameScreen(towers));
+                }),  Actions.fadeIn(1)));
+            }
+        });
         table.add(playButton).pad(4).row();
         TextButton settingsButton = new TextButton(local.BUTTON_SETTINGS, skin);
         table.add(settingsButton).pad(4).row();
-        settingsButton.addListener(new ScreenListener(new SettingsScreen(towers)));
+        settingsButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                stage.addAction(Actions.sequence(Actions.moveBy(0,stage.getHeight(), 1), Actions.run(() -> {
+                    towers.setScreen(new SettingsScreen(towers));
+                })));
+            }
+        });
         if (settings.debug)
             table.debug();
         stage.addActor(table);

@@ -1,21 +1,27 @@
 package com.wurmcraft.towers.game;
 
-import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.ChainShape;
 import com.badlogic.gdx.physics.box2d.Contact;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.QueryCallback;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
+import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.wurmcraft.towers.Towers;
 import com.wurmcraft.towers.game.api.Enemy;
@@ -24,15 +30,16 @@ import com.wurmcraft.towers.gui.MenuScreen;
 
 import org.cliffc.high_scale_lib.NonBlockingHashSet;
 
-public class GameManager {
+public class GameManager extends InputAdapter {
 
     private final int STARTING_Y = 0;
-    private final int SIZE = 64;
+    public static  final int SIZE = 64;
     public static GameManager INSTANCE = new GameManager();
 
     public World world = new World(new Vector2(0, -Towers.settings.gravity), true);
     private GestureDetector gesture;
     private Stage stage;
+    public OrthographicCamera camera;
     public NonBlockingHashSet<Body> entities = new NonBlockingHashSet<>();
 
     // Game Variables
@@ -41,7 +48,7 @@ public class GameManager {
     public int killed;
 
     public GameManager() {
-        placeGround();
+        Body ground = placeGround();
         gesture = new GestureDetector(new GestureHandler());
         Gdx.input.setInputProcessor(gesture);
     }
@@ -49,6 +56,7 @@ public class GameManager {
     // Piggybacked off GameScreen#Render
     public void render(float delta, Stage stage, Towers t, OrthographicCamera camera, Viewport viewport) {
         this.stage = stage;
+        this.camera = camera;
         for (Body e : entities)
             if (e.getUserData() instanceof Enemy) {
                 e.setGravityScale(0);
@@ -125,7 +133,7 @@ public class GameManager {
         world.destroyBody(entity.body);
     }
 
-    private void placeGround() {
+    private Body placeGround() {
         BodyDef groundDef = new BodyDef();
         groundDef.type = BodyDef.BodyType.StaticBody;
         groundDef.position.set(0, 0);
@@ -133,7 +141,9 @@ public class GameManager {
         groundShape.createChain(new Vector2[]{new Vector2(-2000, STARTING_Y), new Vector2(2000, STARTING_Y)});
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = groundShape;
-        world.createBody(groundDef).createFixture(fixtureDef);
+        Body body = world.createBody(groundDef);
+        body.createFixture(fixtureDef);
+        return body;
     }
 
     // TODO Redo for multiple entity types
@@ -198,6 +208,7 @@ public class GameManager {
             }
         }
     }
+
 
     public static void initGameSetttings() {
         GameManager.INSTANCE.baseHP = Towers.settings.baseHP;
