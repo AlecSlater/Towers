@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -36,7 +38,7 @@ import static com.wurmcraft.towers.Towers.settings;
 
 public class GameGui implements Screen {
 
-    private Towers towers;
+    public Towers towers;
     // Rendering
     private Stage stage;
     private OrthographicCamera camrea;
@@ -59,11 +61,13 @@ public class GameGui implements Screen {
     public NonBlockingHashSet<Entity> entities;
     public DragAndDrop dragAndDrop = new DragAndDrop();
     public final int STARTING_Y = 20;
+    public static long lastCleanup = System.currentTimeMillis();
     // Game Data
     public long balance;
     public int wave;
     public int score;
     public int kills;
+    public int hp;
     private GameManager manager;
 
     public GameGui(Towers towers) {
@@ -80,12 +84,13 @@ public class GameGui implements Screen {
         // Create new Game
         entities = new NonBlockingHashSet<>();
         balance = settings.startingBalance;
-        wave = 0;
+        wave = 1;
         score = 0;
         kills = 0;
+        hp = settings.baseHP;
         if (world == null)
             System.exit(0);
-        manager = new GameManager(this, stage, world, dragAndDrop);
+        manager = new GameManager(this, stage, world);
     }
 
     public GameGui(Towers towers, GameState state) {
@@ -124,6 +129,7 @@ public class GameGui implements Screen {
     @Override
     public void render(float delta) {
         RenderUtils.clearScreen();
+        cleanup();
         // Update Stage
         stage.act(Gdx.graphics.getDeltaTime());
         // Rendering
@@ -142,7 +148,7 @@ public class GameGui implements Screen {
         stage.getBatch().end();
         // Tick Game
         manager.update();
-        world.step(Gdx.graphics.getDeltaTime(), 1, 1);
+        world.step(Gdx.graphics.getDeltaTime() * settings.gameSpeed, 1, 6);
     }
 
     @Override
@@ -174,6 +180,7 @@ public class GameGui implements Screen {
         // Info Hud
         font.draw(stage.getBatch(), Towers.local.HUD_WAVE.replaceAll("%WAVE%", wave + ""), 213, Gdx.graphics.getHeight() - 84);
         font.draw(stage.getBatch(), Towers.local.HUD_SCORE.replaceAll("%SCORE%", score + ""), 500, Gdx.graphics.getHeight() - 84);
+        font.draw(stage.getBatch(), Towers.local.HUD_HEALTH.replaceAll("%HEALTH%", hp + ""), 800, Gdx.graphics.getHeight() - 84);
         font.draw(stage.getBatch(), Towers.local.HUD_BALANCE.replaceAll("%BALANCE%", balance + ""), Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 84);
         // Shop HUD
         if (selectionBackgroundButton.isVisible()) {
@@ -225,6 +232,7 @@ public class GameGui implements Screen {
 
             public void reset(DragAndDrop.Source source, DragAndDrop.Payload payload) {
                 getActor().setColor(Color.WHITE);
+                drawSelectionGUI();
             }
 
             public void drop(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
@@ -233,7 +241,7 @@ public class GameGui implements Screen {
                     Vector2 vec = viewport.unproject(new Vector2(x, y));
                     payload.getValidDragActor().setPosition(vec.x, vec.y);
                     stage.addActor(payload.getValidDragActor());
-                    manager.createEntity(data.type, data.extraData, data.hp, 0, 0, (int) vec.x, (int) vec.y);
+                    manager.createEntity(data.type, data.extraData, data.hp, 0, 0, (int) vec.x - 64, (int) vec.y - 128);
                     balance -= data.cost;
                 } else {
                     displayMessage(local.NO_MONEY, false);
@@ -248,6 +256,7 @@ public class GameGui implements Screen {
 
             public void reset(DragAndDrop.Source source, DragAndDrop.Payload payload) {
                 getActor().setColor(Color.WHITE);
+                drawSelectionGUI();
             }
 
             @Override
@@ -260,9 +269,10 @@ public class GameGui implements Screen {
     private void drawSelectionGUI() {
         addShopEntry(new Image(new Texture("red.png")), 10, Entity.Type.BLOCK, 0, 1, 180, 760);
         addShopEntry(new Image(new Texture("red.png")), 40, Entity.Type.BLOCK, 1, 4, 180, 630);
+        addShopEntry(new Image(new Texture("cube.png")), 200, Entity.Type.TOWER, 0, 5, 568, 760);
     }
 
-    private void addShopEntry(Image sourceImage, int cost, Entity.Type type, int extraData, int hp, int x, int y) {
+    private void addShopEntry(final Image sourceImage, int cost, Entity.Type type, int extraData, int hp, int x, int y) {
         sourceImage.setBounds(x, y, 128, 128);
         stage.addActor(sourceImage);
         ShopData data = new ShopData(sourceImage, type, extraData, x, y, cost, hp);
@@ -277,6 +287,10 @@ public class GameGui implements Screen {
                 invalidTargetImage.setVisible(true);
                 validTargetImage.setVisible(true);
                 selectionBackgroundButton.setVisible(false);
+                for (ShopData data : shopItems) {
+                    if (data.image != sourceImage)
+                        data.image.setVisible(false);
+                }
                 return payload;
             }
 
@@ -310,6 +324,16 @@ public class GameGui implements Screen {
         } else {
             messageTimer = settings.messageTimeout;
             currentMessage = "";
+        }
+    }
+
+    public void cleanup() {
+        if (lastCleanup + 5000 <= System.currentTimeMillis()) {
+            for (Body body : manager.worldBodyTracker)
+                if (body.getType() == BodyDef.BodyType.DynamicBody)
+                    if (body.getPosition().y >= Gdx.graphics.getHeight() + 20 || body.getPosition().y <= -20)
+                        world.destroyBody(body);
+            lastCleanup = System.currentTimeMillis();
         }
     }
 }

@@ -8,5 +8,7 @@ public class Local {
     public String HUD_WAVE;
     public String HUD_SCORE;
     public String HUD_BALANCE;
+    public String HUD_HEALTH;
     public String NO_MONEY;
+    public String GAME_OVER;
 }

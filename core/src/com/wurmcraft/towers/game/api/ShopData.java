@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 public class ShopData {
 
     public Image image;
-    public Entity.Type type;
+    public com.wurmcraft.towers.game.api.Entity.Type type;
     public int extraData;
     public int x;
     public int y;
@@ -19,11 +19,11 @@ public class ShopData {
         this.y = y;
         this.cost = cost;
         this.extraData = 0;
-        this.type = Entity.Type.BLOCK;
+        this.type = com.wurmcraft.towers.game.api.Entity.Type.BLOCK;
         this.hp = 1;
     }
 
-    public ShopData(Image image, Entity.Type type, int extraData, int x, int y, int cost) {
+    public ShopData(Image image, com.wurmcraft.towers.game.api.Entity.Type type, int extraData, int x, int y, int cost) {
         this.image = image;
         this.type = type;
         this.extraData = extraData;

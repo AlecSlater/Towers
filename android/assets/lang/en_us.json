@@ -5,6 +5,8 @@
 	"BUTTON_QUIT": "Quit",
 	"HUD_WAVE": "Wave: %WAVE%",
 	"HUD_SCORE": "Score: %SCORE%",
+	"HUD_HEALTH": "Health: %HEALTH%",
 	"HUD_BALANCE": "%BALANCE%c",
+	"GAME_OVER": "Game Over!",
 	"NO_MONEY": "No Money"
 }

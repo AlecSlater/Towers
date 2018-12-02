@@ -7,4 +7,5 @@ public class Settings {
     public int baseHP;
     public int messageTimeout;
     public int startingBalance;
+    public int gameSpeed;
 }
