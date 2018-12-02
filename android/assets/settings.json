@@ -2,5 +2,7 @@
 	"fontScale": "3",
 	"debug": "true",
 	"gravity": "9.8",
-	"baseHP": "2"
+	"baseHP": "2",
+	"messageTimeout": "300",
+	"startingBalance": "500"
 }

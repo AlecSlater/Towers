@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -17,19 +19,29 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.wurmcraft.towers.Towers;
 
-import static com.wurmcraft.towers.Towers.*;
+import static com.wurmcraft.towers.Towers.HEIGHT;
+import static com.wurmcraft.towers.Towers.WIDTH;
+import static com.wurmcraft.towers.Towers.font;
+import static com.wurmcraft.towers.Towers.local;
+import static com.wurmcraft.towers.Towers.settings;
 
-public class SettingsScreen implements Screen {
+public class MenuGui implements Screen {
 
     public Towers towers;
+    // Rendering
+    private Stage stage;
     private OrthographicCamera camrea;
     private Viewport viewport;
-
-    private Stage stage;
     private Skin skin;
-    private Texture background = new Texture(Gdx.files.internal("backgroundSettings.png"));
+    private static Texture background = new Texture("backgroundMenu.png");
 
-    public SettingsScreen(Towers towers) {
+    // Buttons
+    public TextButton playButton;
+    public TextButton settingsButton;
+    public TextButton leaderboardButton;
+    public TextButton quitButton;
+
+    public MenuGui(Towers towers) {
         this.towers = towers;
         // Create and Init Camera
         camrea = new OrthographicCamera(WIDTH, HEIGHT);
@@ -43,8 +55,16 @@ public class SettingsScreen implements Screen {
 
     @Override
     public void show() {
-        setupStyle();
         Gdx.input.setInputProcessor(stage);
+        setupStyle();
+        playButton = createButton(local.BUTTON_PLAY, Actions.sequence(Actions.moveBy(0, stage.getHeight(), 1), Actions.run(() -> towers.setScreen(new GameGui(towers)))));
+        settingsButton = createButton(local.BUTTON_SETTINGS, Actions.sequence(Actions.moveBy(0, stage.getHeight(), 1), Actions.run(() -> towers.setScreen(new SettingsGui(towers)))));
+        leaderboardButton = createButton(local.BUTTON_LEADERBOARD, Actions.sequence(Actions.moveBy(0, stage.getHeight(), 1), Actions.run(() -> towers.setScreen(new LeaderboardGUI(towers)))));
+        quitButton = createButton(local.BUTTON_QUIT, Actions.sequence(Actions.run(() -> {
+            quit();
+            System.exit(0);
+        })));
+        addButtonsToTable();
     }
 
     @Override
@@ -52,6 +72,7 @@ public class SettingsScreen implements Screen {
         // Clear the screen
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        viewport.apply();
         // Draw the Actors / Objects
         stage.act(delta);
         stage.getBatch().begin();
@@ -86,35 +107,46 @@ public class SettingsScreen implements Screen {
 
     private void setupStyle() {
         skin = new Skin();
-        skin.add("default", towers.font);
-        skin.add("default", towers.font);
+        skin.add("default", font);
         Pixmap fillColor = new Pixmap(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 10, Pixmap.Format.RGBA8888);
         fillColor.setColor(Color.WHITE);
         fillColor.fill();
         skin.add("background", new Texture(fillColor));
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.up = skin.newDrawable("background", Color.GRAY);
-        buttonStyle.down = skin.newDrawable("background", Color.RED);
+        buttonStyle.down = skin.newDrawable("background", Color.DARK_GRAY);
         buttonStyle.checked = skin.newDrawable("background", Color.RED);
-        buttonStyle.over = skin.newDrawable("background", Color.PURPLE);
+        buttonStyle.over = skin.newDrawable("background", Color.DARK_GRAY);
         buttonStyle.font = skin.getFont("default");
         skin.add("default", buttonStyle);
     }
 
-    public class ScreenListener extends ClickListener {
+    private TextButton createButton(String text, SequenceAction actions) {
+        TextButton button = new TextButton(text, skin);
+        button.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                stage.addAction(actions);
+            }
+        });
+        return button;
+    }
 
-        private Screen screen;
+    private void quit() {
+    }
 
-        public ScreenListener(Screen screen) {
-            this.screen = screen;
-        }
+    private void addButtonsToTable() {
+        Table table = new Table(skin);
+        table.setFillParent(true);
+        table.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        table.add(playButton).pad(4).row();
+        table.add(settingsButton).pad(4).row();
+        table.add(leaderboardButton).pad(4).row();
+        table.add(quitButton).pad(4).colspan(2).row();
+        if (settings.debug)
+            table.debug();
+        stage.addActor(table);
 
-        @Override
-        public void clicked(InputEvent event, float x, float y) {
-            super.clicked(event, x, y);
-            towers.setScreen(screen);
-            if (settings.debug)
-                System.out.println("Screen changed to " + screen.toString());
-        }
     }
 }
+

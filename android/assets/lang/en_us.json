@@ -1,4 +1,10 @@
 {
 	"BUTTON_PLAY": "Play",
-	"BUTTON_SETTINGS": "Settings"
+	"BUTTON_SETTINGS": "Settings",
+	"BUTTON_LEADERBOARD": "Leaderboard",
+	"BUTTON_QUIT": "Quit",
+	"HUD_WAVE": "Wave: %WAVE%",
+	"HUD_SCORE": "Score: %SCORE%",
+	"HUD_BALANCE": "%BALANCE%c",
+	"NO_MONEY": "No Money"
 }

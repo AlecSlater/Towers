@@ -5,4 +5,6 @@ public class Settings {
     public boolean debug;
     public float gravity;
     public int baseHP;
+    public int messageTimeout;
+    public int startingBalance;
 }
