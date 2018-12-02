@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.wurmcraft.towers.Towers;
+import com.wurmcraft.towers.render.RenderUtils;
 
 import static com.wurmcraft.towers.Towers.HEIGHT;
 import static com.wurmcraft.towers.Towers.WIDTH;
@@ -62,7 +63,7 @@ public class MenuGui implements Screen {
         leaderboardButton = createButton(local.BUTTON_LEADERBOARD, Actions.sequence(Actions.moveBy(0, stage.getHeight(), 1), Actions.run(() -> towers.setScreen(new LeaderboardGUI(towers)))));
         quitButton = createButton(local.BUTTON_QUIT, Actions.sequence(Actions.run(() -> {
             quit();
-            System.exit(0);
+            Gdx.app.exit();
         })));
         addButtonsToTable();
     }
@@ -70,8 +71,7 @@ public class MenuGui implements Screen {
     @Override
     public void render(float delta) {
         // Clear the screen
-        Gdx.gl.glClearColor(1, 1, 1, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        RenderUtils.clearScreen();
         viewport.apply();
         // Draw the Actors / Objects
         stage.act(delta);

@@ -9,7 +9,6 @@ import com.badlogic.gdx.physics.box2d.ChainShape;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
@@ -23,6 +22,7 @@ import com.wurmcraft.towers.gui.GameGui;
 import com.wurmcraft.towers.gui.MenuGui;
 import com.wurmcraft.towers.render.RenderUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +34,7 @@ public class GameManager {
     private Stage stage;
     public Array<Body> worldBodyTracker;
 
-    public GameManager(GameGui gui, Stage stage, World world) {
+    public GameManager(GameGui gui, Stage stage) {
         this.gui = gui;
         this.stage = stage;
         worldBodyTracker = new Array<>();
@@ -79,6 +79,16 @@ public class GameManager {
         }
         if (gui.hp <= 0) {
             gui.displayMessage(Towers.local.GAME_OVER, false);
+            Gdx.files.external("autosave.save").delete();
+            // Add Entry To Leaderboard
+            if (!Gdx.files.external("leaderboard").exists()) {
+                try {
+                    Gdx.files.external("leaderboard").file().createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            Gdx.files.external("leaderboard").writeString(gui.score + "", true);
             gui.towers.setScreen(new MenuGui(gui.towers));
         }
         checkForCollision();
@@ -129,7 +139,7 @@ public class GameManager {
             }
     }
 
-    public Entity createEntity(Entity.Type type, int data, int hp, int damage, int speed, int x, int y) {
+    public Entity createEntity(Entity.Type type, int data, int hp, int damage, int speed, float x, float y) {
         // Physics / HitBox Creation
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
@@ -157,7 +167,6 @@ public class GameManager {
         body.setUserData(entity);
         stage.addActor(entity);
         return entity;
-
     }
 
     private Body placeGround() {

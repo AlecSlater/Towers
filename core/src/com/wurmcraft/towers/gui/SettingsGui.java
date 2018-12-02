@@ -2,6 +2,7 @@ package com.wurmcraft.towers.gui;
 
 import com.badlogic.gdx.Screen;
 import com.wurmcraft.towers.Towers;
+import com.wurmcraft.towers.render.RenderUtils;
 
 public class SettingsGui implements Screen {
 
@@ -18,7 +19,7 @@ public class SettingsGui implements Screen {
 
     @Override
     public void render(float delta) {
-
+        RenderUtils.clearScreen();
     }
 
     @Override

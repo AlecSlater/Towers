@@ -39,5 +39,13 @@ public class Tower extends Entity {
         }
     }
 
+    @Override
+    public void applyDamage(double amount) {
 
+    }
+
+    @Override
+    public void kill() {
+
+    }
 }

@@ -20,13 +20,17 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.wurmcraft.towers.Towers;
 import com.wurmcraft.towers.game.GameManager;
+import com.wurmcraft.towers.game.api.Block;
+import com.wurmcraft.towers.game.api.CubeData;
 import com.wurmcraft.towers.game.api.Entity;
 import com.wurmcraft.towers.game.api.GameState;
 import com.wurmcraft.towers.game.api.ShopData;
+import com.wurmcraft.towers.game.api.Tower;
 import com.wurmcraft.towers.render.RenderUtils;
 
 import org.cliffc.high_scale_lib.NonBlockingHashSet;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,8 +93,11 @@ public class GameGui implements Screen {
         kills = 0;
         hp = settings.baseHP;
         if (world == null)
-            System.exit(0);
-        manager = new GameManager(this, stage, world);
+            Gdx.app.exit();
+        manager = new GameManager(this, stage);
+        if (Gdx.files.external("autoSave.save").exists()) {
+            loadGameState(Towers.gson.fromJson(Gdx.files.external("autoSave.save").readString(), GameState.class));
+        }
     }
 
     public GameGui(Towers towers, GameState state) {
@@ -107,12 +114,34 @@ public class GameGui implements Screen {
     }
 
     private void loadGameState(GameState state) {
-        // TODO Load Game State
+        if (state != null) {
+            wave = state.wave;
+            for (CubeData data : state.cubes)
+                manager.createEntity(data.type, data.data, data.hp, 1, 1, data.x, data.y);
+            balance = state.balance;
+            hp = state.hp;
+            kills = state.kills;
+            score = state.score;
+        }
     }
 
     private GameState saveGameState() {
-        // TODO Save Game State
-        return null;
+        return new GameState(wave, getActiveCubes(), balance, hp, kills, score);
+    }
+
+    private CubeData[] getActiveCubes() {
+        List<CubeData> data = new ArrayList<>();
+        for (Body body : manager.worldBodyTracker)
+            if (body.getUserData() instanceof Block || body.getUserData() instanceof Tower) {
+                Entity entity = (Entity) body.getUserData();
+                Entity.Type type = null;
+                if (body.getUserData() instanceof Block)
+                    type = Entity.Type.BLOCK;
+                else
+                    type = Entity.Type.TOWER;
+                data.add(new CubeData(type, entity.hp, entity.body.getPosition().x, entity.body.getPosition().y));
+            }
+        return data.toArray(new CubeData[0]);
     }
 
     @Override
@@ -149,6 +178,13 @@ public class GameGui implements Screen {
         // Tick Game
         manager.update();
         world.step(Gdx.graphics.getDeltaTime() * settings.gameSpeed, 1, 6);
+        if (wave % 10 == 0)
+            try {
+                Gdx.files.external("autoSave.save").file().createNewFile();
+                Gdx.files.external("autoSave.save").writeString(Towers.gson.toJson(saveGameState()), false);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
     }
 
     @Override
@@ -158,11 +194,18 @@ public class GameGui implements Screen {
 
     @Override
     public void pause() {
-        saveGameState();
+        try {
+            Gdx.files.external("autoSave.save").file().createNewFile();
+            Gdx.files.external("autoSave.save").writeString(Towers.gson.toJson(saveGameState()), false);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void resume() {
+        if (Gdx.files.external("autoSave.save").exists())
+            loadGameState(Towers.gson.fromJson(Gdx.files.external("autoSave.save").readString(), GameState.class));
     }
 
     @Override

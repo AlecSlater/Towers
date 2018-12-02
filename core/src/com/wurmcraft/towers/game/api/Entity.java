@@ -22,21 +22,15 @@ public abstract class Entity extends Actor {
         this.hp = hp;
     }
 
-    public void update(Array<Body> entities) {
-
-    }
+    public abstract void update(Array<Body> entities);
 
     public void render(Stage stage, float time) {
         stage.getBatch().draw(texture.getKeyFrame(time, true), body.getPosition().x, body.getPosition().y);
     }
 
-    public void applyDamage(double amount) {
+    public abstract void applyDamage(double amount);
 
-    }
-
-    public void kill() {
-
-    }
+    public abstract void kill();
 
 
     public enum Type {
