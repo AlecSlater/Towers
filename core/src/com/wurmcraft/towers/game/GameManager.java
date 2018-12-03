@@ -79,16 +79,17 @@ public class GameManager {
         }
         if (gui.hp <= 0) {
             gui.displayMessage(Towers.local.GAME_OVER, false);
-            Gdx.files.external("autosave.save").delete();
-            // Add Entry To Leaderboard
-            if (!Gdx.files.external("leaderboard").exists()) {
+            Gdx.files.local("towers.save").delete();
+            // Add Entry To leaderboard.json
+            if (!Gdx.files.local("leaderboard.json").exists()) {
                 try {
-                    Gdx.files.external("leaderboard").file().createNewFile();
+                    Gdx.files.local("leaderboard.json").file().createNewFile();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            Gdx.files.external("leaderboard").writeString(gui.score + "", true);
+            if (gui.score > 0)
+                Gdx.files.local("leaderboard.json").writeString(gui.score + "\n", true);
             gui.towers.setScreen(new MenuGui(gui.towers));
         }
         checkForCollision();

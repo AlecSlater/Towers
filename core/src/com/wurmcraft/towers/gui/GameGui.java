@@ -180,8 +180,8 @@ public class GameGui implements Screen {
         world.step(Gdx.graphics.getDeltaTime() * settings.gameSpeed, 1, 6);
         if (wave % 10 == 0)
             try {
-                Gdx.files.external("autoSave.save").file().createNewFile();
-                Gdx.files.external("autoSave.save").writeString(Towers.gson.toJson(saveGameState()), false);
+                Gdx.files.external("towers.save").file().createNewFile();
+                Gdx.files.external("towers.save").writeString(Towers.gson.toJson(saveGameState()), false);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -195,8 +195,8 @@ public class GameGui implements Screen {
     @Override
     public void pause() {
         try {
-            Gdx.files.external("autoSave.save").file().createNewFile();
-            Gdx.files.external("autoSave.save").writeString(Towers.gson.toJson(saveGameState()), false);
+            Gdx.files.external("towers.save").file().createNewFile();
+            Gdx.files.external("towers.save").writeString(Towers.gson.toJson(saveGameState()), false);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -204,8 +204,8 @@ public class GameGui implements Screen {
 
     @Override
     public void resume() {
-        if (Gdx.files.external("autoSave.save").exists())
-            loadGameState(Towers.gson.fromJson(Gdx.files.external("autoSave.save").readString(), GameState.class));
+        if (Gdx.files.external("towers.save").exists())
+            loadGameState(Towers.gson.fromJson(Gdx.files.external("towers.save").readString(), GameState.class));
     }
 
     @Override
