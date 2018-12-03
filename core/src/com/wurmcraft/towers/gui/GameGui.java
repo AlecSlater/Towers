@@ -88,7 +88,7 @@ public class GameGui implements Screen {
         // Create new Game
         entities = new NonBlockingHashSet<>();
         balance = settings.startingBalance;
-        wave = 1;
+        wave = 0;
         score = 0;
         kills = 0;
         hp = settings.baseHP;
@@ -256,10 +256,10 @@ public class GameGui implements Screen {
 
     private void createSelectionWarning() {
         // Placement Rendering
-        validTargetImage = new Image(new Texture("green.png"));
+        validTargetImage = new Image(guiIconsTextures[0][1]);
         validTargetImage.setBounds(0, 720, Gdx.graphics.getWidth(), 360);
         stage.addActor(validTargetImage);
-        invalidTargetImage = new Image(new Texture("red.png"));
+        invalidTargetImage = new Image(guiIconsTextures[0][0]);
         invalidTargetImage.setBounds(0, 0, Gdx.graphics.getWidth(), 720);
         stage.addActor(invalidTargetImage);
         invalidTargetImage.setVisible(false);
@@ -284,7 +284,7 @@ public class GameGui implements Screen {
                     Vector2 vec = viewport.unproject(new Vector2(x, y));
                     payload.getValidDragActor().setPosition(vec.x, vec.y);
                     stage.addActor(payload.getValidDragActor());
-                    manager.createEntity(data.type, data.extraData, data.hp, 0, 0, (int) vec.x - 64, (int) vec.y - 128);
+                    manager.createEntity(data.type, data.extraData, data.hp, 0, 0, (int) vec.x + 64, (int) vec.y - 128);
                     balance -= data.cost;
                 } else {
                     displayMessage(local.NO_MONEY, false);
@@ -310,9 +310,9 @@ public class GameGui implements Screen {
     }
 
     private void drawSelectionGUI() {
-        addShopEntry(new Image(new Texture("red.png")), 10, Entity.Type.BLOCK, 0, 1, 180, 760);
-        addShopEntry(new Image(new Texture("red.png")), 40, Entity.Type.BLOCK, 1, 4, 180, 630);
-        addShopEntry(new Image(new Texture("cube.png")), 200, Entity.Type.TOWER, 0, 5, 568, 760);
+        addShopEntry(new Image(blockTextures[0][0]), 10, Entity.Type.BLOCK, 0, 1, 180, 760);
+        addShopEntry(new Image(blockTextures[0][1]), 40, Entity.Type.BLOCK, 1, 4, 180, 630);
+        addShopEntry(new Image(towerTextures[0][0]), 200, Entity.Type.TOWER, 0, 5, 568, 760);
     }
 
     private void addShopEntry(final Image sourceImage, int cost, Entity.Type type, int extraData, int hp, int x, int y) {
