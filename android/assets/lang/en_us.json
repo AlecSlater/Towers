@@ -8,5 +8,7 @@
 	"HUD_HEALTH": "Health: %HEALTH%",
 	"HUD_BALANCE": "%BALANCE%c",
 	"GAME_OVER": "Game Over!",
-	"NO_MONEY": "No Money"
+	"NO_MONEY": "No Money",
+	"BUTTON_DEBUG": "Debug",
+	"BUTTON_BACK": "Back"
 }

@@ -11,4 +11,6 @@ public class Local {
     public String HUD_HEALTH;
     public String NO_MONEY;
     public String GAME_OVER;
+    public String BUTTON_DEBUG;
+    public String BUTTON_BACK;
 }

@@ -57,7 +57,7 @@ public class MenuGui implements Screen {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
-        setupStyle();
+        skin = setupStyle();
         playButton = createButton(local.BUTTON_PLAY, Actions.sequence(Actions.moveBy(0, stage.getHeight(), 1), Actions.run(() -> towers.setScreen(new GameGui(towers)))));
         settingsButton = createButton(local.BUTTON_SETTINGS, Actions.sequence(Actions.moveBy(0, stage.getHeight(), 1), Actions.run(() -> towers.setScreen(new SettingsGui(towers)))));
         leaderboardButton = createButton(local.BUTTON_LEADERBOARD, Actions.sequence(Actions.moveBy(0, stage.getHeight(), 1), Actions.run(() -> towers.setScreen(new LeaderboardGUI(towers)))));
@@ -105,8 +105,8 @@ public class MenuGui implements Screen {
         stage.dispose();
     }
 
-    private void setupStyle() {
-        skin = new Skin();
+    public static Skin setupStyle() {
+        Skin skin = new Skin();
         skin.add("default", font);
         Pixmap fillColor = new Pixmap(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 10, Pixmap.Format.RGBA8888);
         fillColor.setColor(Color.WHITE);
@@ -119,6 +119,7 @@ public class MenuGui implements Screen {
         buttonStyle.over = skin.newDrawable("background", Color.DARK_GRAY);
         buttonStyle.font = skin.getFont("default");
         skin.add("default", buttonStyle);
+        return skin;
     }
 
     private TextButton createButton(String text, SequenceAction actions) {
