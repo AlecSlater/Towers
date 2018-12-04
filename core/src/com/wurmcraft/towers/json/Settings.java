@@ -8,4 +8,5 @@ public class Settings {
     public int messageTimeout;
     public int startingBalance;
     public int gameSpeed;
+    public String version;
 }

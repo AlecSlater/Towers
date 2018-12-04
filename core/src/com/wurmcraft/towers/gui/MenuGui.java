@@ -77,6 +77,7 @@ public class MenuGui implements Screen {
         stage.act(delta);
         stage.getBatch().begin();
         stage.getBatch().draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        font.draw(stage.getBatch(),settings.version,Gdx.graphics.getWidth() - 300, 100);
         stage.getBatch().end();
         stage.draw();
     }

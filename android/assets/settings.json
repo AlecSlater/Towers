@@ -2,8 +2,9 @@
 	"fontScale": "3",
 	"debug": "false",
 	"gravity": "9.8",
-	"baseHP": "2",
+	"baseHP": "10",
 	"messageTimeout": "300",
-	"startingBalance": "500",
-	"gameSpeed": "4"
+	"startingBalance": "250",
+	"gameSpeed": "4",
+	"version": "v0.0.3"
 }
